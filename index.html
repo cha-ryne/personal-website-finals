@@ -13,11 +13,11 @@
   <div class="container">
     <header>
       <div class="logo">
-        <h1>Charijoy</h1>
+        <h1></h1>
       </div>
       <nav>
         <ul>
-          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="index.html">Home</a></li>
           <li><a href="index.html#skills">Skills</a></li>
           <li><a href="index.html#hobbies">Interests</a></li>
           <li><a href="index.html#resources">Resources</a></li>
@@ -160,15 +160,24 @@
       <div class="footer-content">
         <p>&copy; 2025 Charijoy Cempron</p>
         <div class="footer-links">
-          <a href="#education">Education</a>
-          <a href="#skills">Skills</a>
-          <a href="#gallery">Gallery</a>
-          <a href="#projects">Projects</a>
+          <a href="index.html#education">Education</a>
+          <a href="index.html#projects">Projects</a>
         </div>
       </div>
     </footer>
   </div>
   
   <script src="js/image.js"></script>
+  <script>
+    // Add scrolled class to header when page is scrolled
+    window.addEventListener('scroll', function() {
+      const header = document.querySelector('header');
+      if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+      } else {
+        header.classList.remove('scrolled');
+      }
+    });
+  </script>
 </body>
 </html>

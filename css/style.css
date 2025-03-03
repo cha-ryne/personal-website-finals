@@ -31,6 +31,7 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
+    padding-top: 80px;
   }
   
   /* Typography */
@@ -81,13 +82,39 @@
   }
   
   /* Header & Navigation */
-  header {
+/* Add this to your style.css file */
+/* Header & Navigation */
+/* Header & Navigation - Fixed positioning */
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: rgba(18, 18, 18, 0.95);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    padding: 1rem 0;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(255, 105, 180, 0.3);
+  }
+  
+  /* Container for the header content */
+  header > div {
+    max-width: 1200px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 0 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 0;
-    margin-bottom: 3rem;
-    border-bottom: 1px solid var(--light-gray);
+  }
+  
+  /* Change border color on scroll */
+  header.scrolled {
+    border-bottom: 2px solid var(--primary-pink);
+    background-color: var(--black);
   }
   
   .logo h1 {
@@ -97,7 +124,8 @@
     letter-spacing: 1px;
   }
   
-  nav ul {
+/* Navigation styles */
+nav ul {
     display: flex;
     list-style: none;
     gap: 1.5rem;
@@ -106,23 +134,31 @@
   nav a {
     padding: 0.5rem 0;
     position: relative;
+    color: var(--white);
+    text-decoration: none;
+    transition: var(--transition);
   }
   
+  /* Fixed indicator line positioning */
   nav a::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -3px; /* Position slightly below text */
     left: 0;
     width: 0;
     height: 2px;
     background-color: var(--primary-pink);
-    transition: var(--transition);
+    transition: width 0.3s ease;
   }
   
-  nav a:hover::after, nav a.active::after {
+  nav a:hover::after, 
+  nav a.active::after {
     width: 100%;
   }
   
+  nav a:hover {
+    color: var(--primary-pink);
+  }
   /* Main Content */
   main {
     margin-bottom: 3rem;
@@ -393,11 +429,19 @@
   }
   
   @media (max-width: 767px) {
-    header {
-      flex-direction: column;
-      gap: 1rem;
-    }
-    
+    header > div {
+        flex-direction: column;
+        gap: 1rem;
+      }
+      
+      header {
+        padding: 0.7rem 0;
+      }
+      
+      .container {
+        padding-top: 110px; /* Increased for mobile to account for stacked header */
+      }
+
     nav ul {
       flex-wrap: wrap;
       justify-content: center;
