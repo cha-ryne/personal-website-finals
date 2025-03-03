@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
+  <script src="https://unpkg.com/vue-gallery-slideshow@1.5.2/dist/js/vue-gallery-slideshow.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+  <title>Charijoy</title>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <h1>Charijoy</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="index.html" class="active">Home</a></li>
+          <li><a href="interests.html">Interests</a></li>
+          <li><a href="survey.html">Feedback</a></li>
+          <li><a href="resources.html">Resources</a></li>
+        </ul>
+      </nav>
+    </header>
+    
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <img src="images/sit.jpg" alt="Profile Photo" class="profile-image">
+          <div class="hero-text">
+            <h2>Charijoy Cempron</h2>
+            <p class="subtitle">IT Student & Web Enthusiast</p>
+            <p>Cha/ri, Kakay, Acerola</p>
+            <p>Metro Manila, Philippines</p>
+            <div class="social-links">
+              <a href="https://www.linkedin.com/in/charijoy-cempron-0b6950281/" target="_blank">
+                <i class="fab fa-linkedin"></i> LinkedIn
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Education Section -->
+      <section class="education" id="education">
+        <h2><i class="fas fa-graduation-cap"></i> Education</h2>
+        
+        <div class="education-cards">
+          <div class="edu-card">
+            <h3>Secondary</h3>
+            <p class="school">St. Ives School</p>
+            <p class="location">Severina Subd. Bagumbayan, Taguig City</p>
+            <p class="year">SY 2017-2023</p>
+            <p class="achievement">With Honors</p>
+          </div>
+          
+          <div class="edu-card">
+            <h3>Tertiary</h3>
+            <p class="school">Asia Pacific College</p>
+            <p class="location">Humabon St. Magallanes, Makati City</p>
+            <p class="year">SY 2023-Present</p>
+            <p class="course">Bachelor of Science in Information Technology with Specialization in Mobile Internet</p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Skills Section -->
+      <section class="skills" id="skills">
+        <h2><i class="fas fa-laptop-code"></i> IT Experience</h2>
+        <div class="skills-container">
+          <div class="skill">
+            <i class="fab fa-java"></i>
+            <p>Basic Java</p>
+          </div>
+          <div class="skill">
+            <i class="fab fa-python"></i>
+            <p>Basic Python</p>
+          </div>
+          <div class="skill">
+            <i class="fas fa-gamepad"></i>
+            <p>Codee Combat</p>
+          </div>
+        </div>
+      </section>
+      
+      <!-- Gallery Section -->
+      <section class="gallery" id="gallery">
+        <h2><i class="fas fa-images"></i> Gallery</h2>
+        <div id="app" class="gallery-container">
+          <img class="image" v-for="(image, i) in images" :src="image" @click="onClick(i)" alt="Gallery Image">
+          <vue-gallery-slideshow v-if="showSlideshow" :images="images" :index="index" @close="closeSlideshow"></vue-gallery-slideshow>
+        </div>
+      </section>
+      
+      <!-- Interests and Goals -->
+      <div class="two-column">
+        <!-- Hobbies Section -->
+        <section class="hobbies" id="hobbies">
+          <h2><i class="fas fa-heart"></i> Hobbies & Interests</h2>
+          <ul class="interest-list">
+            <li>Blackpink (Jennie Kim)</li>
+            <li>Mangas/Manhwas/Manhuas</li>
+            <li>Animes (Zom 100, Chainsaw Man)</li>
+            <li>Pirates of the Caribbean</li>
+          </ul>
+        </section>
+        
+        <!-- Goals Section -->
+        <section class="goals" id="goals">
+          <h2><i class="fas fa-flag"></i> Life Goals</h2>
+          <ul class="goals-list">
+            <li>Have successful businesses</li>
+            <li>Be a model at least once</li>
+            <li>Master a musical instrument</li>
+            <li>Retire early</li>
+            <li>Find my purpose</li>
+            <li>Master a sport</li>
+            <li>Fitness and health journey</li>
+          </ul>
+        </section>
+      </div>
+      
+      <!-- Project Ratings Section -->
+      <section class="projects" id="projects">
+        <h2><i class="fas fa-star"></i> Rate My Projects</h2>
+        <p>Please share your feedback on my projects!</p>
+        <div id="projects-list" class="projects-container">
+          <!-- Projects will be loaded here -->
+        </div>
+      </section>
+      
+      <!-- Resources Section -->
+      <section class="resources" id="resources">
+        <h2><i class="fas fa-link"></i> Useful Links</h2>
+        <div class="resources-grid">
+          <a href="https://blog.pixelfreestudio.com/using-css-grid-and-flexbox-together-best-practices/" class="resource-link">
+            <i class="fas fa-th"></i>
+            <span>Flexbox and CSS grid</span>
+          </a>
+          <a href="https://www.w3schools.com/tags/tag_button.asp" class="resource-link">
+            <i class="fas fa-square"></i>
+            <span>Buttons</span>
+          </a>
+          <a href="https://vuejsexamples.com/responsive-gallery-component-for-vuejs/" class="resource-link">
+            <i class="fab fa-vuejs"></i>
+            <span>Vue Gallery</span>
+          </a>
+          <a href="https://surveyjs.io/form-library/examples/rating-scale/documentation" class="resource-link">
+            <i class="fas fa-poll"></i>
+            <span>Vue Rating</span>
+          </a>
+        </div>
+      </section>
+    </main>
+    
+    <footer>
+      <div class="footer-content">
+        <p>&copy; 2025 Charijoy Cempron</p>
+        <div class="footer-links">
+          <a href="#education">Education</a>
+          <a href="#skills">Skills</a>
+          <a href="#gallery">Gallery</a>
+          <a href="#projects">Projects</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+  
+  <script src="js/image.js"></script>
+</body>
+</html>
