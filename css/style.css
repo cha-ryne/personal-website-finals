@@ -467,17 +467,31 @@ nav ul {
   margin-top: 1rem;
 }
 
+.project-rating .stars {
+  display: inline-flex;
+  margin-right: 0.5rem;
+}
+
 /* Star Rating Container */
 .stars {
   display: flex;
   gap: 0.3rem;
+  cursor: pointer;
 }
 
 .stars i {
   cursor: pointer;
   transition: var(--transition);
-  color: #555;
+  color: #ddd;
+  transition: color 0.2s;
 }
+
+.stars.large {
+  font-size: 2rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
 
 .stars i:hover,
 .stars i:hover ~ i {
@@ -491,13 +505,14 @@ nav ul {
 .rating-count {
   color: #888;
   font-size: 0.9rem;
+  margin-left: 0.5rem;
 }
 
 /* Rating Modal */
 .modal {
   display: none;
   position: fixed;
-  z-index: 1100;
+  z-index: 1000;
   left: 0;
   top: 0;
   width: 100%;
@@ -509,14 +524,15 @@ nav ul {
 }
 
 .modal-content {
-  background-color: var(--dark-gray);
+  background-color: #1a1a1a;
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 10px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   width: 90%;
   max-width: 500px;
   position: relative;
   animation: modalFadeIn 0.3s;
+  border: 1px solid #333;
 }
 
 @keyframes modalFadeIn {
@@ -527,9 +543,9 @@ nav ul {
 .close-modal {
   position: absolute;
   top: 1rem;
-  right: 1.5rem;
-  font-size: 1.8rem;
-  color: var(--white);
+  right: 1rem;
+  font-size: 1.5rem;
+  color: #888;
   cursor: pointer;
 }
 
@@ -567,6 +583,7 @@ nav ul {
   transition: var(--transition);
   display: block;
   margin-left: auto;
+  float: right;
 }
 
 .rating-btn:hover {
@@ -574,9 +591,22 @@ nav ul {
   transform: translateY(-3px);
 }
 
+textarea {
+  width: 100%;
+  min-height: 120px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid #444;
+  border-radius: 8px;
+  padding: 0.8rem;
+  color: #fff;
+  font-family: inherit;
+  resize: vertical;
+  margin: 1rem 0;
+}
+
 /* Project Comments Styling */
 .project-comments-container {
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   padding-top: 0.8rem;
   width: 100%;
@@ -584,13 +614,13 @@ nav ul {
 
 .comments-heading {
   font-size: 0.9rem;
-  color: var(--primary-pink);
-  margin-bottom: 0.8rem;
+  color: var(--light-pink);
+  margin-bottom: 0.5rem;
   font-weight: 500;
 }
 
 .project-comments {
-  max-height: 200px;
+  max-height: 300px;
   overflow-y: auto;
   padding-right: 5px;
 }
@@ -600,7 +630,7 @@ nav ul {
   background-color: rgba(255, 255, 255, 0.05);
   padding: 0.8rem;
   border-radius: 8px;
-  margin-bottom: 0.8rem;
+  margin-bottom: 0.5rem;
   border-left: 3px solid var(--primary-pink);
 }
 
