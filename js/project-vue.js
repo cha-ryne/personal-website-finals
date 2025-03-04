@@ -35,12 +35,19 @@ document.addEventListener('DOMContentLoaded', function() {
           this.errorMessage = '';
           
           try {
-            const response = await axios.get(`${API_BASE_URL}/ratings`);
-            console.log('API response:', response.data);
+            const response = await fetch(`${API_BASE_URL}/ratings`);
+            
+            // Check for HTTP errors
+            if (!response.ok) {
+              throw new Error(`Server returned ${response.status}`);
+            }
+            
+            const data = await response.json();
+            console.log('API response:', data);
             
             // Group ratings by project ID
             const ratings = {};
-            response.data.forEach(rating => {
+            data.forEach(rating => {
               const projectId = parseInt(rating.project_id);
               if (!ratings[projectId]) {
                 ratings[projectId] = [];
@@ -76,8 +83,25 @@ document.addEventListener('DOMContentLoaded', function() {
             };
             
             console.log('Rating data:', ratingData);
-            const response = await axios.post(`${API_BASE_URL}/ratings`, ratingData);
-            console.log('Rating submitted successfully:', response.data);
+            
+            // Using native fetch API (works everywhere including iPad)
+            const response = await fetch(`${API_BASE_URL}/ratings`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify(ratingData)
+            });
+            
+            // Check for HTTP errors (fetch doesn't reject on HTTP error status)
+            if (!response.ok) {
+              const errorText = await response.text();
+              throw new Error(`Server error: ${response.status} ${errorText}`);
+            }
+            
+            const data = await response.json();
+            console.log('Rating submitted successfully:', data);
             
             // Refresh ratings
             await this.fetchRatings();
@@ -89,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Thank you for your feedback!');
           } catch (error) {
             console.error('Error submitting rating:', error);
-            alert('Failed to submit rating. Please try again.');
+            alert(`Failed to submit rating: ${error.message}`);
           } finally {
             this.isLoading = false;
           }
