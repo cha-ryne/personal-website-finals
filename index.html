@@ -194,8 +194,8 @@
             <p>A mobile wireframe of Ramquest app.</p>
             <div class="project-rating" data-project="2">
               <div class="stars">
-                <i v-for="n in 5" :key="`project1-star-${n}`" 
-                  :class="[n <= getAverageRating(1) ? 'fas' : 'far', 'fa-star']"
+                <i v-for="n in 5" :key="`project2-star-${n}`"
+                  :class="[n <= getAverageRating(2) ? 'fas' : 'far', 'fa-star']"
                   @click="openRatingModal(2, n)"></i>
               </div>
               <span class="rating-count">({{ projectRatings[2] ? projectRatings[2].length : 0 }} ratings)</span>
@@ -238,7 +238,7 @@
             <p>A responsive restaurant website.</p>
             <div class="project-rating" data-project="3">
               <div class="stars">
-                <i v-for="n in 5" :key="`project1-star-${n}`" 
+                <i v-for="n in 5" :key="`project3-star-${n}`"
                   :class="[n <= getAverageRating(3) ? 'fas' : 'far', 'fa-star']"
                   @click="openRatingModal(3, n)"></i>
               </div>
