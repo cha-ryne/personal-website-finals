@@ -89,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
               method: 'POST',
               mode: 'cors', // Explicitly request CORS mode
               cache: 'no-cache', // Don't use cached responses
-              credentials: 'same-origin', // This helps with CORS on Safari
+              credentials: 'omit', // This helps with CORS on Safari
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
