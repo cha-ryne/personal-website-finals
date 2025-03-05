@@ -10,22 +10,24 @@
   <div id="result"></div>
 
   <script>
-    document.getElementById('testGet').addEventListener('click', function() {
-      const xhr = new XMLHttpRequest();
-      xhr.open('GET', 'https://charyn.pythonanywhere.com/api/ratings', true);
-      xhr.setRequestHeader('Accept', 'application/json');
-      
-      xhr.onload = function() {
-        document.getElementById('result').innerText = 
-          `GET Status: ${xhr.status}\nResponse: ${xhr.responseText.substring(0, 200)}...`;
-      };
-      
-      xhr.onerror = function() {
-        document.getElementById('result').innerText = 'GET Error: Request failed';
-      };
-      
-      xhr.send();
-    });
+    // Update your iPad.html test file
+document.getElementById('testGet').addEventListener('click', function() {
+  const xhr = new XMLHttpRequest();
+  // Use a CORS proxy
+  xhr.open('GET', 'https://corsproxy.io/?https://charyn.pythonanywhere.com/api/ratings', true);
+  xhr.setRequestHeader('Accept', 'application/json');
+  
+  xhr.onload = function() {
+    document.getElementById('result').innerText = 
+      `GET Status: ${xhr.status}\nResponse: ${xhr.responseText.substring(0, 200)}...`;
+  };
+  
+  xhr.onerror = function(e) {
+    document.getElementById('result').innerText = `GET Error: ${e.type}\nDetails: ${JSON.stringify(e)}`;
+  };
+  
+  xhr.send();
+});
     
     document.getElementById('testPost').addEventListener('click', function() {
       const xhr = new XMLHttpRequest();

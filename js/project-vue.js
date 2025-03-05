@@ -44,8 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
             let data;
             
             if (isIPadSafari) {
-              // Use XMLHttpRequest for iPad Safari
-              console.log('Using XMLHttpRequest for fetching ratings (iPad compatibility)');
+              // Use XMLHttpRequest with CORS proxy for iPad Safari
+              console.log('Using XMLHttpRequest with CORS proxy for fetching ratings (iPad compatibility)');
               
               data = await new Promise((resolve, reject) => {
                 const xhr = new XMLHttpRequest();
@@ -54,9 +54,11 @@ document.addEventListener('DOMContentLoaded', function() {
                   reject(new Error('Request timed out'));
                 }, 10000);
                 
-                xhr.open('GET', `${API_BASE_URL}/ratings`, true);
+                // Changed URL to use the proxy
+                xhr.open('GET', 'https://corsproxy.io/?https://charyn.pythonanywhere.com/api/ratings', true);
                 xhr.setRequestHeader('Accept', 'application/json');
                 
+                // Rest of your existing code remains the same
                 xhr.onload = () => {
                   clearTimeout(timeout);
                   if (xhr.status >= 200 && xhr.status < 300) {
@@ -137,20 +139,20 @@ document.addEventListener('DOMContentLoaded', function() {
                                  (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
             
             if (isIPadSafari) {
-              // Use old XMLHttpRequest API for iPad Safari
-              console.log('Using XMLHttpRequest for iPad Safari compatibility');
-              
-              return new Promise((resolve, reject) => {
-                const xhr = new XMLHttpRequest();
-                const timeout = setTimeout(() => {
-                  xhr.abort();
-                  reject(new Error('Request timed out'));
-                }, 10000);
-                
-                xhr.open('POST', `${API_BASE_URL}/ratings`, true);
-                xhr.setRequestHeader('Content-Type', 'application/json');
-                xhr.setRequestHeader('Accept', 'application/json');
-                
+             // Use old XMLHttpRequest API with CORS proxy for iPad Safari
+             console.log('Using XMLHttpRequest with CORS proxy for iPad Safari compatibility');
+  
+             return new Promise((resolve, reject) => {
+             const xhr = new XMLHttpRequest();
+             const timeout = setTimeout(() => {
+               xhr.abort();
+               reject(new Error('Request timed out'));
+             }, 10000);
+    
+              // Changed URL to use the proxy
+             xhr.open('POST', 'https://corsproxy.io/?https://charyn.pythonanywhere.com/api/ratings', true);
+             xhr.setRequestHeader('Content-Type', 'application/json');
+             xhr.setRequestHeader('Accept', 'application/json');
                 xhr.onload = () => {
                   clearTimeout(timeout);
                   if (xhr.status >= 200 && xhr.status < 300) {
