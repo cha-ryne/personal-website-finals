@@ -147,7 +147,7 @@ nav ul {
   nav a {
     padding: 0.5rem 0;
     position: relative;
-    color: var(--white);
+    color: var(--primary-pink);
     text-decoration: none;
     transition: var(--transition);
   }
@@ -759,7 +759,7 @@ footer {
 
 /* Make footer links stand out more */
 .footer-links a {
-  color: var(--white);
+  color: var(--primary-pink);
   transition: var(--transition);
 }
 
