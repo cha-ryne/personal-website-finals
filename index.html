@@ -89,9 +89,9 @@
       <!-- Gallery Section -->
       <section class="gallery" id="gallery">
         <h2><i class="fas fa-images"></i> Gallery</h2>
-        <div id="app" class="gallery-container">
-          <img class="image" v-for="(image, i) in images" :src="image" @click="onClick(i)" alt="Gallery Image">
-          <vue-gallery-slideshow v-if="showSlideshow" :images="images" :index="index" @close="closeSlideshow"></vue-gallery-slideshow>
+        <div id="app">
+          <img class="image" v-for="(image, i) in images" :src="image" @click="onClick(i)">
+          <vue-gallery-slideshow :images="images" :index="index" @close="index = null"></vue-gallery-slideshow>
         </div>
       </section>
       

@@ -14,7 +14,7 @@
 document.getElementById('testGet').addEventListener('click', function() {
   const xhr = new XMLHttpRequest();
   // Use a CORS proxy
-  xhr.open('GET', 'https://corsproxy.io/?https://charyn.pythonanywhere.com/api/ratings', true);
+  xhr.open('GET', 'https://charyn.pythonanywhere.com/api/ratings', true);
   xhr.setRequestHeader('Accept', 'application/json');
   
   xhr.onload = function() {

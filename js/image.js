@@ -1,18 +1,15 @@
-new Vue({
-    el: '#app',
-    components: {
-      VueGallerySlideshow
-    },
-    methods: {
-      onClick(i) {
-        this.index = i;
-        this.showSlideshow = true;
-      },
-      closeSlideshow() {
-        this.showSlideshow = false; // Hide the slideshow
-      }
-    },
-    data: {
+import VueGallerySlideshow from 'vue-gallery-slideshow'
+const app = new Vue({
+  el: '#app',
+  components: {
+    VueGallerySlideshow
+  },
+  methods: {
+    onClick(i) {
+      this.index = i;
+    }
+  },
+  data: {
       images: [
         "images/gong.jpg",
         'images/Sakamoto.jpg',
@@ -23,7 +20,6 @@ new Vue({
         'images/Chman.jpg',
         "images/fish.jpg"
       ],
-      index: 0,
-      showSlideshow: false
+      index: 0
     }
   })
