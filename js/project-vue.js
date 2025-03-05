@@ -1,32 +1,34 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // API endpoint from your pythonanywhere site
-    const API_BASE_URL = 'https://charyn.pythonanywhere.com/api';
-    
-    // Generate a user ID for this session if one doesn't exist
-    const userId = localStorage.getItem('ratingUserId') || 
-      ('user_' + Math.random().toString(36).substring(2, 9));
-    localStorage.setItem('ratingUserId', userId);
-    
-    console.log('Initializing Vue project component with userId:', userId);
-    
-    const projectsApp = new Vue({
-      el: '#projects-app',
-      template: '#projects-template',
-      data: {
-        projectRatings: {},
-        selectedProject: null,
-        selectedRating: 0,
-        ratingComment: '',
-        userId: userId,
-        showRatingModal: false,
-        showCommentsModal: false,
-        isLoading: true,
-        errorMessage: ''
-      },
-      created() {
-        console.log('Vue component created');
-        this.fetchRatings();
-      },
+  // API endpoint from your pythonanywhere site
+  const API_BASE_URL = 'https://charyn.pythonanywhere.com/api';
+  
+  // Move userId definition and Vue initialization into a function
+  function initializeApp() {
+      // Generate a user ID for this session if one doesn't exist
+      const userId = localStorage.getItem('ratingUserId') || 
+        ('user_' + Math.random().toString(36).substring(2, 9));
+      localStorage.setItem('ratingUserId', userId);
+      
+      console.log('Initializing Vue project component with userId:', userId);
+      
+      return new Vue({
+        el: '#projects-app',
+        template: '#projects-template',
+        data: {
+          projectRatings: {},
+          selectedProject: null,
+          selectedRating: 0,
+          ratingComment: '',
+          userId: userId, // Now userId is definitely defined before use
+          showRatingModal: false,
+          showCommentsModal: false,
+          isLoading: true,
+          errorMessage: ''
+        },
+        created() {
+          console.log('Vue component created');
+          this.fetchRatings();
+        },
       methods: {
         // API Calls
         async fetchRatings() {
@@ -242,6 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
+  }
+
+  const projectsApp = initializeApp();
     
     // Add CSS for modal styling
     const style = document.createElement('style');
