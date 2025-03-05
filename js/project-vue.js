@@ -86,59 +86,88 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Rating data:', ratingData);
             
-            // Enhanced fetch configuration for iPad compatibility
-            const fetchOptions = {
-              method: 'POST',
-              mode: 'cors', // Explicitly request CORS mode
-              cache: 'no-cache', // Don't use cached responses
-              credentials: 'omit', // This helps with CORS on Safari
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              },
-              redirect: 'follow', // Auto-follow redirects
-              body: JSON.stringify(ratingData)
-            };
+            // Check if it's likely an iPad Safari browser
+            const isIPadSafari = /iPad/.test(navigator.userAgent) || 
+                                 (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
             
-            console.log('Sending request with options:', fetchOptions);
-            
-            // Set a timeout to detect network issues
-            const timeoutPromise = new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Request timed out')), 10000)
-            );
-            
-            // Race the fetch against a timeout
-            const response = await Promise.race([
-              fetch(`${API_BASE_URL}/ratings`, fetchOptions),
-              timeoutPromise
-            ]);
-            
-            // Check for HTTP errors
-            if (!response.ok) {
-              const errorText = await response.text();
-              throw new Error(`Server error: ${response.status} ${errorText}`);
+            if (isIPadSafari) {
+              // Use old XMLHttpRequest API for iPad Safari
+              console.log('Using XMLHttpRequest for iPad Safari compatibility');
+              
+              return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const timeout = setTimeout(() => {
+                  xhr.abort();
+                  reject(new Error('Request timed out'));
+                }, 10000);
+                
+                xhr.open('POST', `${API_BASE_URL}/ratings`, true);
+                xhr.setRequestHeader('Content-Type', 'application/json');
+                xhr.setRequestHeader('Accept', 'application/json');
+                
+                xhr.onload = () => {
+                  clearTimeout(timeout);
+                  if (xhr.status >= 200 && xhr.status < 300) {
+                    const data = JSON.parse(xhr.responseText);
+                    console.log('Rating submitted successfully:', data);
+                    this.fetchRatings();
+                    this.closeRatingModal();
+                    alert('Thank you for your feedback!');
+                    resolve(data);
+                  } else {
+                    reject(new Error(`Server error: ${xhr.status} ${xhr.statusText}`));
+                  }
+                };
+                
+                xhr.onerror = () => {
+                  clearTimeout(timeout);
+                  reject(new Error('Network request failed'));
+                };
+                
+                xhr.send(JSON.stringify(ratingData));
+              });
+            } else {
+              // Use fetch for modern browsers (existing code)
+              const fetchOptions = {
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'omit',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Accept': 'application/json'
+                },
+                redirect: 'follow',
+                body: JSON.stringify(ratingData)
+              };
+              
+              const timeoutPromise = new Promise((_, reject) => 
+                setTimeout(() => reject(new Error('Request timed out')), 10000)
+              );
+              
+              const response = await Promise.race([
+                fetch(`${API_BASE_URL}/ratings`, fetchOptions),
+                timeoutPromise
+              ]);
+              
+              if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(`Server error: ${response.status} ${errorText}`);
+              }
+              
+              const data = await response.json();
+              console.log('Rating submitted successfully:', data);
+              
+              await this.fetchRatings();
+              this.closeRatingModal();
+              alert('Thank you for your feedback!');
             }
-            
-            const data = await response.json();
-            console.log('Rating submitted successfully:', data);
-            
-            // Refresh ratings
-            await this.fetchRatings();
-            
-            // Close modal and reset
-            this.closeRatingModal();
-            
-            // Show success message
-            alert('Thank you for your feedback!');
           } catch (error) {
             console.error('Error submitting rating:', error);
-            
-            // More descriptive error for debugging
             let errorMessage = error.message;
             if (error.message === 'Failed to fetch' || error.message.includes('load failed')) {
-              errorMessage = 'Network request failed. This might be due to a connection issue or CORS policy. Please try again later.';
+              errorMessage = 'Network request failed. Please try again later.';
             }
-            
             alert(`Failed to submit rating: ${errorMessage}`);
           } finally {
             this.isLoading = false;
