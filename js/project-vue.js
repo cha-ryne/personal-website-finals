@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', function() {
+  // Add this right after you define API_BASE_URL
+  const isIPadSafari = /iPad/.test(navigator.userAgent) || 
+  (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
+  console.log("Is iPad Safari:", isIPadSafari);
   // API endpoint from your pythonanywhere site
   const API_BASE_URL = 'https://charyn.pythonanywhere.com/api';
   
@@ -37,15 +41,57 @@ document.addEventListener('DOMContentLoaded', function() {
           this.errorMessage = '';
           
           try {
-            const response = await fetch(`${API_BASE_URL}/ratings`);
+            let data;
             
-            // Check for HTTP errors
-            if (!response.ok) {
-              throw new Error(`Server returned ${response.status}`);
+            if (isIPadSafari) {
+              // Use XMLHttpRequest for iPad Safari
+              console.log('Using XMLHttpRequest for fetching ratings (iPad compatibility)');
+              
+              data = await new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                const timeout = setTimeout(() => {
+                  xhr.abort();
+                  reject(new Error('Request timed out'));
+                }, 10000);
+                
+                xhr.open('GET', `${API_BASE_URL}/ratings`, true);
+                xhr.setRequestHeader('Accept', 'application/json');
+                
+                xhr.onload = () => {
+                  clearTimeout(timeout);
+                  if (xhr.status >= 200 && xhr.status < 300) {
+                    try {
+                      const responseData = JSON.parse(xhr.responseText);
+                      resolve(responseData);
+                    } catch (e) {
+                      reject(new Error('Invalid JSON response'));
+                    }
+                  } else {
+                    reject(new Error(`Server returned ${xhr.status}`));
+                  }
+                };
+                
+                xhr.onerror = () => {
+                  clearTimeout(timeout);
+                  reject(new Error('Network request failed'));
+                };
+                
+                xhr.send();
+              });
+              
+              console.log('Got API response via XMLHttpRequest:', data);
+            } else {
+              // Use fetch for modern browsers
+              const response = await fetch(`${API_BASE_URL}/ratings`);
+              
+              // Check for HTTP errors
+              if (!response.ok) {
+                throw new Error(`Server returned ${response.status}`);
+              }
+              
+              data = await response.json();
+              console.log('API response via fetch:', data);
             }
-            
-            const data = await response.json();
-            console.log('API response:', data);
             
             // Group ratings by project ID
             const ratings = {};
