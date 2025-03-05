@@ -742,6 +742,7 @@ footer {
 }
 
 .footer-content {
+  color: var(--primary-pink);
   max-width: 1200px;
   width: 100%;
   padding: 0 20px; /* Match the padding of other containers */
