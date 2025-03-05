@@ -84,17 +84,34 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('Rating data:', ratingData);
             
-            // Using native fetch API (works everywhere including iPad)
-            const response = await fetch(`${API_BASE_URL}/ratings`, {
+            // Enhanced fetch configuration for iPad compatibility
+            const fetchOptions = {
               method: 'POST',
+              mode: 'cors', // Explicitly request CORS mode
+              cache: 'no-cache', // Don't use cached responses
+              credentials: 'same-origin', // This helps with CORS on Safari
               headers: {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json'
               },
+              redirect: 'follow', // Auto-follow redirects
               body: JSON.stringify(ratingData)
-            });
+            };
             
-            // Check for HTTP errors (fetch doesn't reject on HTTP error status)
+            console.log('Sending request with options:', fetchOptions);
+            
+            // Set a timeout to detect network issues
+            const timeoutPromise = new Promise((_, reject) => 
+              setTimeout(() => reject(new Error('Request timed out')), 10000)
+            );
+            
+            // Race the fetch against a timeout
+            const response = await Promise.race([
+              fetch(`${API_BASE_URL}/ratings`, fetchOptions),
+              timeoutPromise
+            ]);
+            
+            // Check for HTTP errors
             if (!response.ok) {
               const errorText = await response.text();
               throw new Error(`Server error: ${response.status} ${errorText}`);
@@ -113,7 +130,14 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('Thank you for your feedback!');
           } catch (error) {
             console.error('Error submitting rating:', error);
-            alert(`Failed to submit rating: ${error.message}`);
+            
+            // More descriptive error for debugging
+            let errorMessage = error.message;
+            if (error.message === 'Failed to fetch' || error.message.includes('load failed')) {
+              errorMessage = 'Network request failed. This might be due to a connection issue or CORS policy. Please try again later.';
+            }
+            
+            alert(`Failed to submit rating: ${errorMessage}`);
           } finally {
             this.isLoading = false;
           }
