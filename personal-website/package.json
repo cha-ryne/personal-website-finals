@@ -9,14 +9,14 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
-    "axios": "^1.8.1",
-    "core-js": "^3.8.3",
-    "vue": "^3.2.13",
-    "vue-gallery-slideshow": "^1.5.2",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/vue-fontawesome": "^3.0.8",
+    "axios": "^1.8.1",
+    "core-js": "^3.8.3",
+    "vue": "^3.2.13",
+    "vue-gallery-slideshow": "^1.5.2",
     "vue-router": "^4.5.0",
     "vuex": "^4.1.0"
   },
