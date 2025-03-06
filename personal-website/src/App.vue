@@ -44,6 +44,7 @@ onMounted(() => {
 
 <style>
 @import '@/assets/css/global.css';
+@import '@/assets/images/';
 
 /* Default styles */
 * {

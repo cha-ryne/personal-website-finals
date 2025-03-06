@@ -1,11 +1,11 @@
+<!-- src/components/ProjectsSection.vue -->
 <template>
   <section class="projects" id="projects">
     <h2><i class="fas fa-star"></i> My Projects</h2>
     <p>Check out my latest work and share your feedback!</p>
     
     <div class="projects-grid">
-      <!-- Project cards - using v-for with your projects array -->
-      <div class="project-card" v-for="project in projects" :key="project.id">
+      <div v-for="project in projects" :key="project.id" class="project-card">
         <div class="project-image" :style="`background-image: url(${project.image})`">
           <div class="project-overlay">
             <a :href="project.link" target="_blank" class="project-link">
@@ -25,45 +25,48 @@
             <span class="rating-count">
               ({{ projectRatings[project.id] ? projectRatings[project.id].length : 0 }} ratings)
             </span>
-            <!-- Comments section -->
             <div class="project-comments-container">
-              <!-- Comment content here -->
+              <h4 class="comments-heading">Feedback</h4>
+              <div class="project-comments">
+                <div v-if="!hasComments(project.id)" class="no-comments">
+                  No feedback yet. Be the first to comment!
+                </div>
+                <div v-else>
+                  <div v-for="rating in getTopComments(project.id)" :key="rating.id" class="comment">
+                    <div class="comment-stars">
+                      <i v-for="n in 5" :key="`rating-${rating.id}-star-${n}`"
+                         :class="[n <= rating.stars ? 'fas' : 'far', 'fa-star']"></i>
+                    </div>
+                    <p class="comment-text">{{ rating.comment }}</p>
+                    <p class="comment-date">{{ formatDate(rating.created_at) }}</p>
+                  </div>
+                  <button v-if="commentsWithText(project.id).length > 3"
+                          class="view-more-comments" @click="showAllComments(project.id)">
+                    View {{ commentsWithText(project.id).length - 3 }} more comments
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
     
-    <!-- Rating Modal -->
-    <div v-if="showRatingModal" class="modal" :style="{display: showRatingModal ? 'flex' : 'none'}">
-      <!-- Modal content here -->
-    </div>
-    
-    <!-- All Comments Modal -->
-    <div v-if="showCommentsModal" class="modal" :style="{display: showCommentsModal ? 'flex' : 'none'}">
-      <!-- Comments modal content here -->
-    </div>
+    <rating-modal v-if="showRatingModal" />
+    <comments-modal v-if="showCommentsModal" />
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useStore } from 'vuex';
-import axios from 'axios';
+import RatingModal from '@/components/modals/RatingModal.vue';
+import CommentsModal from '@/components/modals/CommentsModal.vue';
+import { formatDate } from '@/utils/formatters';
 
 const store = useStore();
 
-// State variables
-const projectRatings = ref({});
-const selectedProject = ref(null);
-const selectedRating = ref(0);
-const ratingComment = ref('');
-const showRatingModal = ref(false);
-const showCommentsModal = ref(false);
-const isLoading = ref(true);
-const errorMessage = ref('');
-
-// Define your projects
+// Projects data
 const projects = ref([
   {
     id: 1,
@@ -88,47 +91,82 @@ const projects = ref([
   }
 ]);
 
-// Your methods would go here - fetchRatings, submitRating, etc.
-// These would be similar to your existing methods but using Vue 3 composition API
+// Computed properties from store
+const projectRatings = computed(() => store.state.projectRatings);
+const showRatingModal = computed(() => store.state.showRatingModal);
+const showCommentsModal = computed(() => store.state.showCommentsModal);
+const isLoading = computed(() => store.state.isLoading);
+const errorMessage = computed(() => store.state.errorMessage);
 
-// Lifecycle hook - fetch ratings when component mounts
-onMounted(() => {
-  fetchRatings();
-});
+// Methods mapped from store
+function openRatingModal(projectId, stars) {
+  store.dispatch('openRatingModal', { projectId, stars });
+}
 
-// Function to fetch ratings
-const fetchRatings = async () => {
-  // Your existing fetch ratings code but adapted to Vue 3
-};
+function showAllComments(projectId) {
+  store.dispatch('showAllComments', projectId);
+}
 
-// More methods here
+// Getters mapped from store
+function getAverageRating(projectId) {
+  return store.getters.getAverageRating(projectId);
+}
+
+function commentsWithText(projectId) {
+  return store.getters.commentsWithText(projectId);
+}
+
+function getTopComments(projectId) {
+  return store.getters.getTopComments(projectId);
+}
+
+function hasComments(projectId) {
+  const comments = commentsWithText(projectId);
+  return comments && comments.length > 0;
+}
 </script>
 
 <style scoped>
-  .projects-container {
-    background-color: var(--dark-gray);
-    padding: 1.5rem;
-    border-radius: 12px;
-  }
+.projects {
+  padding: 4rem 2rem;
+  background-color: #1a1a1a;
+  text-align: center;
+}
 
-  /* Projects Section */
+.projects h2 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 2rem;
+}
+
+.projects h2 i {
+  color: #ff69b4;
+  margin-right: 0.5rem;
+}
+
+.projects p {
+  color: #b3b3b3;
+  margin-bottom: 3rem;
+}
+
 .projects-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 .project-card {
-  background-color: var(--dark-gray);
-  border-radius: 12px;
+  background: linear-gradient(145deg, #1a1a1a, #242424);
+  border-radius: 10px;
   overflow: hidden;
-  box-shadow: var(--box-shadow);
-  transition: var(--transition);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s;
 }
 
 .project-card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-5px);
 }
 
 .project-image {
@@ -140,32 +178,38 @@ const fetchRatings = async () => {
 
 .project-overlay {
   position: absolute;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.7);
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
   display: flex;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   opacity: 0;
-  transition: var(--transition);
+  transition: opacity 0.3s;
 }
 
-.project-card:hover .project-overlay {
+.project-overlay:hover {
   opacity: 1;
 }
 
 .project-link {
-  background-color: var(--primary-pink);
   color: white;
-  padding: 0.8rem 1.2rem;
+  text-decoration: none;
+  background: #ff69b4;
+  padding: 0.8rem 1.5rem;
   border-radius: 30px;
-  font-weight: 500;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
+  transform: translateY(20px);
+  transition: transform 0.3s;
 }
 
-.project-link i {
-  font-size: 0.9rem;
+.project-overlay:hover .project-link {
+  transform: translateY(0);
+}
+
+.project-link:hover {
+  background: #8a2be2;
 }
 
 .project-info {
@@ -173,267 +217,96 @@ const fetchRatings = async () => {
 }
 
 .project-info h3 {
-  margin-bottom: 0.8rem;
-  color: var(--primary-pink);
+  color: white;
+  margin-bottom: 0.5rem;
 }
 
-.project-tech {
-  margin: 1rem 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+.project-info p {
+  color: #b3b3b3;
+  margin-bottom: 1rem;
 }
 
-.project-tech span {
-  background-color: rgba(255, 105, 180, 0.2);
-  color: var(--light-pink);
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 500;
-}
-
-/* Project Rating Section */
 .project-rating {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
-.project-rating .stars {
-  display: inline-flex;
-  margin-right: 0.5rem;
-}
-
-/* Star Rating Container */
 .stars {
-  display: flex;
-  gap: 0.3rem;
-  cursor: pointer;
+  margin-bottom: 0.5rem;
 }
 
 .stars i {
+  color: #999;
+  margin-right: 0.25rem;
   cursor: pointer;
-  transition: var(--transition);
-  color: #ddd;
-  transition: color 0.2s;
-}
-
-.stars.large {
-  font-size: 2rem;
-  justify-content: center;
-  margin: 1rem 0;
-}
-
-
-.stars i:hover,
-.stars i:hover ~ i {
-  color: var(--primary-pink);
 }
 
 .stars i.fas {
-  color: var(--primary-pink);
+  color: gold;
+}
+
+.stars i:hover {
+  color: gold;
 }
 
 .rating-count {
-  color: #888;
-  font-size: 0.9rem;
-  margin-left: 0.5rem;
+  font-size: 0.8rem;
+  color: #777;
 }
 
-/* Rating Modal */
-.modal {
-  display: none;
-  position: fixed;
-  z-index: 1000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.8);
-  overflow: auto;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-content {
-  background-color: #1a1a1a;
-  padding: 2rem;
-  border-radius: 10px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-  width: 90%;
-  max-width: 500px;
-  position: relative;
-  animation: modalFadeIn 0.3s;
-  border: 1px solid #333;
-}
-
-@keyframes modalFadeIn {
-  from { opacity: 0; transform: translateY(-50px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.close-modal {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
-  font-size: 1.5rem;
-  color: #888;
-  cursor: pointer;
-}
-
-.close-modal:hover {
-  color: var(--primary-pink);
-}
-
-.stars.large {
-  font-size: 2rem;
-  justify-content: center;
-  margin: 1rem 0;
-}
-
-#rating-comment {
-  width: 100%;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid #444;
-  color: var(--white);
-  padding: 0.8rem;
-  border-radius: 8px;
-  margin: 1rem 0;
-  min-height: 100px;
-  resize: vertical;
-  font-family: inherit;
-}
-
-.rating-btn {
-  background-color: var(--primary-pink);
-  color: white;
-  border: none;
-  padding: 0.8rem 1.5rem;
-  border-radius: 30px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  display: block;
-  margin-left: auto;
-  float: right;
-}
-
-.rating-btn:hover {
-  background-color: var(--dark-pink);
-  transform: translateY(-3px);
-}
-
-textarea {
-  width: 100%;
-  min-height: 120px;
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid #444;
-  border-radius: 8px;
-  padding: 0.8rem;
-  color: #fff;
-  font-family: inherit;
-  resize: vertical;
-  margin: 1rem 0;
-}
-
-/* Project Comments Styling */
 .project-comments-container {
-  margin-top: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  padding-top: 0.8rem;
-  width: 100%;
+  margin-top: 1.5rem;
 }
 
 .comments-heading {
+  font-size: 1rem;
+  color: #ddd;
+  margin-bottom: 0.5rem;
+}
+
+.no-comments {
+  font-style: italic;
   font-size: 0.9rem;
-  color: var(--light-pink);
-  margin-bottom: 0.5rem;
-  font-weight: 500;
+  color: #777;
 }
 
-.project-comments {
-  max-height: 300px;
-  overflow-y: auto;
-  padding-right: 5px;
-}
-
-/* Individual Comment Styling */
 .comment {
-  background-color: rgba(255, 255, 255, 0.05);
-  padding: 0.8rem;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 8px;
-  margin-bottom: 0.5rem;
-  border-left: 3px solid var(--primary-pink);
+  margin-bottom: 0.75rem;
 }
 
-.comment-stars {
-  margin-bottom: 0.5rem;
+.comment-stars i {
   font-size: 0.8rem;
+  color: #999;
+  margin-right: 0.25rem;
 }
 
-.comment-stars .fas {
-  color: var(--primary-pink);
+.comment-stars i.fas {
+  color: gold;
 }
 
 .comment-text {
   font-size: 0.9rem;
-  line-height: 1.4;
-  margin-bottom: 0.5rem;
-  color: var(--white);
-}
-
-.comment-date {
-  font-size: 0.8rem;
-  color: #888;
-  text-align: right;
-}
-
-.no-comments {
-  color: #888;
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.view-more-comments {
-  background: none;
-  border: none;
-  color: var(--primary-pink);
-  font-size: 0.9rem;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  display: block;
+  color: #ddd;
   margin: 0.5rem 0;
 }
 
+.comment-date {
+  font-size: 0.7rem;
+  color: #777;
+}
+
+.view-more-comments {
+  background: transparent;
+  color: #ff69b4;
+  border: none;
+  font-size: 0.9rem;
+  padding: 0;
+  cursor: pointer;
+}
+
 .view-more-comments:hover {
-  color: var(--light-pink);
-}
-
-/* Comment modal specific styling */
-.comments-modal {
-  max-width: 600px;
-}
-
-.all-comments {
-  max-height: 400px;
-  overflow-y: auto;
-  margin: 1rem 0;
-}
-
-/* Scrollbar styling for comment area */
-.project-comments::-webkit-scrollbar {
-  width: 5px;
-}
-
-.project-comments::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.project-comments::-webkit-scrollbar-thumb {
-  background: var(--primary-pink);
-  border-radius: 10px;
+  text-decoration: underline;
 }
 </style>

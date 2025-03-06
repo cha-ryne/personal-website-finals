@@ -30,6 +30,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 
+// Gallery image array
 const images = ref([
   new URL('@/assets/images/gong.jpg', import.meta.url).href,
   new URL('@/assets/images/Sakamoto.jpg', import.meta.url).href,
@@ -41,28 +42,34 @@ const images = ref([
   new URL('@/assets/images/fish.jpg', import.meta.url).href
 ]);
 
+// State variables
 const currentIndex = ref(0);
 const showGallery = ref(false);
 
+// Open the gallery at a specific image index
 function openGallery(index) {
   currentIndex.value = index;
   showGallery.value = true;
   document.body.style.overflow = 'hidden'; // Prevent scrolling when gallery is open
 }
 
+// Close the gallery
 function closeGallery() {
   showGallery.value = false;
   document.body.style.overflow = ''; // Re-enable scrolling
 }
 
+// Navigate to previous image
 function prevImage() {
   currentIndex.value = (currentIndex.value - 1 + images.value.length) % images.value.length;
 }
 
+// Navigate to next image
 function nextImage() {
   currentIndex.value = (currentIndex.value + 1) % images.value.length;
 }
 
+// Handle keyboard navigation
 function handleKeydown(event) {
   if (!showGallery.value) return;
   
@@ -75,10 +82,12 @@ function handleKeydown(event) {
   }
 }
 
+// Add keyboard event listener when component mounts
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown);
 });
 
+// Remove keyboard event listener when component unmounts
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown);
 });
@@ -102,90 +111,97 @@ onBeforeUnmount(() => {
   margin-right: 0.5rem;
 }
 
-.my-isolated-gallery-container {
+.gallery-container {
   max-width: 1200px;
   margin: 0 auto;
 }
 
+/* Use a unique namespace for all gallery elements */
+.my-isolated-gallery-container {
+  width: 100%;
+}
+
+.my-isolated-gallery-container * {
+  box-sizing: border-box;
+}
+
+/* Grid layout - explicitly scoped */
 .my-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
   gap: 1rem;
+  width: 100%;
 }
 
+/* Thumbnails */
 .my-gallery-item {
-  cursor: pointer;
   overflow: hidden;
-  border-radius: 8px;
-  transition: transform 0.3s;
-}
-
-.my-gallery-item:hover {
-  transform: scale(1.03);
+  cursor: pointer;
+  border-radius: 10px;
+  height: 200px; /* Fixed height */
 }
 
 .my-gallery-item img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
-  display: block;
+  transition: transform 0.3s ease;
+  border-radius: 10px;
 }
 
+.my-gallery-item:hover img {
+  transform: scale(1.05);
+}
+
+/* Fullscreen overlay */
 .my-gallery-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+  background-color: rgba(0, 0, 0, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 1000;
 }
 
+/* Large image */
 .my-gallery-large-img {
-  max-width: 90%;
   max-height: 80vh;
+  max-width: 90vw;
   object-fit: contain;
+  border-radius: 10px;
 }
 
-.my-gallery-close,
+/* Controls */
+.my-gallery-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
 .my-gallery-prev,
 .my-gallery-next {
   position: absolute;
-  cursor: pointer;
+  top: 50%;
+  transform: translateY(-50%);
   color: white;
-  font-size: 2rem;
-  text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-  transition: all 0.3s;
+  font-size: 30px;
+  cursor: pointer;
+  padding: 20px;
 }
 
-.my-gallery-close {
-  top: 20px;
-  right: 30px;
-}
-
-.my-gallery-prev {
-  left: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.my-gallery-next {
-  right: 30px;
-  top: 50%;
-  transform: translateY(-50%);
-}
+.my-gallery-prev { left: 20px; }
+.my-gallery-next { right: 20px; }
 
 .my-gallery-close:hover,
 .my-gallery-prev:hover,
 .my-gallery-next:hover {
   color: #ff69b4;
-  transform: translateY(-50%) scale(1.2);
-}
-
-.my-gallery-close:hover {
-  transform: scale(1.2);
 }
 </style>

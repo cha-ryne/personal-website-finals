@@ -1,15 +1,14 @@
+// src/store/index.js
 import { createStore } from 'vuex';
 import axios from 'axios';
 
-// Check if it's likely an iPad Safari browser
+// iPad Safari detection
 const isIPadSafari = /iPad/.test(navigator.userAgent) || 
                    (/Macintosh/.test(navigator.userAgent) && 'ontouchend' in document);
 
-// API base URL from environment variables or default
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://charyn.pythonanywhere.com/api';
-
-// Create API client with correct URL based on device
-const apiUrl = isIPadSafari ? 
+// API base URL with optional CORS proxy
+const API_BASE_URL = 'https://charyn.pythonanywhere.com/api';
+const API_URL = isIPadSafari ? 
   `https://corsproxy.io/?${encodeURIComponent(API_BASE_URL)}` : 
   API_BASE_URL;
 
@@ -60,12 +59,62 @@ export default createStore({
     },
     
     async fetchRatings({ commit }) {
+      console.log('Fetching ratings from API');
       commit('SET_LOADING', true);
       commit('SET_ERROR', '');
       
       try {
-        const response = await axios.get(`${apiUrl}/ratings`);
-        const data = response.data;
+        let data;
+        
+        if (isIPadSafari) {
+          // Use XMLHttpRequest with CORS proxy for iPad Safari
+          console.log('Using XMLHttpRequest with CORS proxy for fetchRatings (iPad compatibility)');
+          
+          data = await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const timeout = setTimeout(() => {
+              xhr.abort();
+              reject(new Error('Request timed out'));
+            }, 10000);
+            
+            xhr.open('GET', `https://corsproxy.io/?${encodeURIComponent(API_BASE_URL)}/ratings`, true);
+            xhr.setRequestHeader('Accept', 'application/json');
+            
+            xhr.onload = () => {
+              clearTimeout(timeout);
+              if (xhr.status >= 200 && xhr.status < 300) {
+                try {
+                  const responseData = JSON.parse(xhr.responseText);
+                  resolve(responseData);
+                } catch (e) {
+                  reject(new Error('Invalid JSON response'));
+                }
+              } else {
+                reject(new Error(`Server returned ${xhr.status}`));
+              }
+            };
+            
+            xhr.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Network request failed'));
+            };
+            
+            xhr.send();
+          });
+          
+          console.log('Got API response via XMLHttpRequest:', data);
+        } else {
+          // Use fetch for modern browsers
+          const response = await fetch(`${API_BASE_URL}/ratings`);
+          
+          // Check for HTTP errors
+          if (!response.ok) {
+            throw new Error(`Server returned ${response.status}`);
+          }
+          
+          data = await response.json();
+          console.log('API response via fetch:', data);
+        }
         
         // Group ratings by project ID
         const ratings = {};
@@ -78,6 +127,7 @@ export default createStore({
         });
         
         commit('SET_PROJECT_RATINGS', ratings);
+        console.log('Ratings grouped by project:', ratings);
       } catch (error) {
         console.error('Error fetching ratings:', error);
         commit('SET_ERROR', 'Unable to load ratings. Please try again later.');
@@ -91,6 +141,7 @@ export default createStore({
         return { success: false, message: 'Please select a rating by clicking on the stars' };
       }
       
+      console.log(`Submitting rating ${state.selectedRating} for project ${state.selectedProject}`);
       commit('SET_LOADING', true);
       
       try {
@@ -101,7 +152,73 @@ export default createStore({
           comment: state.ratingComment
         };
         
-        await axios.post(`${apiUrl}/ratings`, ratingData);
+        console.log('Rating data:', ratingData);
+        
+        if (isIPadSafari) {
+          // Use XMLHttpRequest with CORS proxy for iPad Safari
+          console.log('Using XMLHttpRequest with CORS proxy for submitRating (iPad compatibility)');
+          
+          await new Promise((resolve, reject) => {
+            const xhr = new XMLHttpRequest();
+            const timeout = setTimeout(() => {
+              xhr.abort();
+              reject(new Error('Request timed out'));
+            }, 10000);
+            
+            xhr.open('POST', `https://corsproxy.io/?${encodeURIComponent(API_BASE_URL)}/ratings`, true);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.setRequestHeader('Accept', 'application/json');
+            
+            xhr.onload = () => {
+              clearTimeout(timeout);
+              if (xhr.status >= 200 && xhr.status < 300) {
+                const data = JSON.parse(xhr.responseText);
+                console.log('Rating submitted successfully:', data);
+                resolve(data);
+              } else {
+                reject(new Error(`Server error: ${xhr.status} ${xhr.statusText}`));
+              }
+            };
+            
+            xhr.onerror = () => {
+              clearTimeout(timeout);
+              reject(new Error('Network request failed'));
+            };
+            
+            xhr.send(JSON.stringify(ratingData));
+          });
+        } else {
+          // Use fetch for modern browsers
+          const fetchOptions = {
+            method: 'POST',
+            mode: 'cors',
+            cache: 'no-cache',
+            credentials: 'omit',
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            },
+            redirect: 'follow',
+            body: JSON.stringify(ratingData)
+          };
+          
+          const timeoutPromise = new Promise((_, reject) => 
+            setTimeout(() => reject(new Error('Request timed out')), 10000)
+          );
+          
+          const response = await Promise.race([
+            fetch(`${API_BASE_URL}/ratings`, fetchOptions),
+            timeoutPromise
+          ]);
+          
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Server error: ${response.status} ${errorText}`);
+          }
+          
+          const data = await response.json();
+          console.log('Rating submitted successfully:', data);
+        }
         
         // Refresh ratings
         await dispatch('fetchRatings');
@@ -115,10 +232,13 @@ export default createStore({
         return { success: true };
       } catch (error) {
         console.error('Error submitting rating:', error);
-        commit('SET_ERROR', 'Failed to submit rating. Please try again later.');
+        let errorMessage = error.message;
+        if (error.message === 'Failed to fetch' || error.message.includes('load failed')) {
+          errorMessage = 'Network request failed. Please try again later.';
+        }
         return { 
           success: false, 
-          message: error.response?.data?.message || 'Network error. Please try again.' 
+          message: errorMessage 
         };
       } finally {
         commit('SET_LOADING', false);
@@ -126,8 +246,10 @@ export default createStore({
     },
     
     openRatingModal({ commit }, { projectId, stars = 0 }) {
+      console.log(`Opening rating modal for project ${projectId} with ${stars} stars`);
       commit('SET_SELECTED_PROJECT', parseInt(projectId));
-      commit('SET_SELECTED_RATING', parseInt(stars));
+      commit('SET_SELECTED_RATING', parseInt(stars || 0));
+      commit('SET_RATING_COMMENT', '');
       commit('SHOW_RATING_MODAL', true);
     },
     
@@ -171,16 +293,21 @@ export default createStore({
     
     getTopComments: (state, getters) => (projectId) => {
       const comments = getters.commentsWithText(projectId);
+      
+      // Sort by date (newest first)
+      comments.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      
+      // Return top 3
       return comments.slice(0, 3);
     },
     
-    getAllComments: (state) => () => {
+    getAllComments: (state, getters) => () => {
       if (!state.selectedProject || !state.projectRatings[state.selectedProject]) {
         return [];
       }
-      return state.projectRatings[state.selectedProject].filter(
-        rating => rating.comment && rating.comment.trim() !== ''
-      );
+      
+      return getters.commentsWithText(state.selectedProject)
+        .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
     }
   }
 });
