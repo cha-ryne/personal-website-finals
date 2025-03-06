@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <style>
-@import '@/assets/css/global.css';
+@import '../assets/css/style.css';
 
 /* Default styles */
 * {

@@ -32,14 +32,14 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 
 // Gallery image array
 const images = ref([
-  new URL('@/assets/images/gong.jpg', import.meta.url).href,
-  new URL('@/assets/images/Sakamoto.jpg', import.meta.url).href,
-  new URL('@/assets/images/bp.jpg', import.meta.url).href,
-  new URL('@/assets/images/Manga.jpg', import.meta.url).href,
-  new URL('@/assets/images/pirates.jpg', import.meta.url).href,
+  new URL('../assets/images/gong.jpg', import.meta.url).href,
+  new URL('../assets/images/Sakamoto.jpg', import.meta.url).href,
+  new URL('../assets/images/bp.jpg', import.meta.url).href,
+  new URL('../assets/images/Manga.jpg', import.meta.url).href,
+  new URL('../assets/images/pirates.jpg', import.meta.url).href,
   'https://preview.redd.it/new-wallpaper-for-my-pc-they-have-no-right-being-this-cool-v0-3l2k9lpytrcc1.jpeg?auto=webp&s=84fbc9925af40466495e023248afa37305b232fd',
-  new URL('@/assets/images/Chman.jpg', import.meta.url).href,
-  new URL('@/assets/images/fish.jpg', import.meta.url).href
+  new URL('../assets/images/Chman.jpg', import.meta.url).href,
+  new URL('../assets/images/fish.jpg', import.meta.url).href
 ]);
 
 // State variables
