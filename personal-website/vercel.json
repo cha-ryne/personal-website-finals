@@ -1,0 +1,10 @@
+{
+    "version": 2,
+    "buildCommand": "cd personal-website && npm run build",
+    "outputDirectory": "personal-website/dist",
+    "routes": [
+      { "handle": "filesystem" },
+      { "src": "/assets/(.*)", "headers": { "cache-control": "max-age=31536000, immutable" } },
+      { "src": "/(.*)", "dest": "/index.html" }
+    ]
+  }
